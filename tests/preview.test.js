@@ -1,0 +1,14 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import worker from '../src/worker.js';
+const req=(path,method='GET')=>new Request('https://example.test'+path,{method});
+const db=results=>({prepare:()=>({all:async()=>({results})})});
+const tables=['users','sessions','courses','course_access','orders','reviews'].map(name=>({name}));
+test('health: all six tables',async()=>{const r=await worker.fetch(req('/api/health'),{DB:db(tables)});assert.equal(r.status,200);assert.equal((await r.json()).database,'ready')});
+test('health: missing table',async()=>{const r=await worker.fetch(req('/api/health'),{DB:db(tables.slice(1))});assert.equal(r.status,503);assert.equal((await r.json()).database,'not_initialized')});
+test('health: missing binding',async()=>{const r=await worker.fetch(req('/api/health'),{});assert.equal(r.status,503);assert.equal((await r.json()).database,'binding_missing')});
+test('writes disabled',async()=>{for(const method of ['POST','PUT','PATCH','DELETE']){const r=await worker.fetch(req('/api/courses',method),{});assert.equal(r.status,405);assert.equal(r.headers.get('allow'),'GET')}});
+test('private endpoints disabled',async()=>{for(const path of ['/api/users','/api/orders','/api/sessions','/api/course_access'])assert.equal((await worker.fetch(req(path),{})).status,404)});
+test('catalog response excludes private fields',async()=>{const r=await worker.fetch(req('/api/courses'),{DB:db([{id:'a',title:'Class',email:'secret',password_hash:'secret',live_url:'secret'}])});const {courses}=await r.json();assert.deepEqual(courses,[{id:'a',title:'Class'}])});
+test('database errors do not leak details',async()=>{const r=await worker.fetch(req('/api/courses'),{DB:{prepare(){throw new Error('secret token')}}});assert.equal(r.status,503);assert.ok(!(await r.text()).includes('secret token'))});
+test('API security headers',async()=>{const r=await worker.fetch(req('/api/unknown'),{});assert.equal(r.headers.get('cache-control'),'no-store');assert.equal(r.headers.get('x-content-type-options'),'nosniff');assert.equal(r.headers.get('x-frame-options'),'DENY')});
