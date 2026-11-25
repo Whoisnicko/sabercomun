@@ -6,7 +6,7 @@ Estados: [x] realizado o verificado dentro del alcance especificado; [ ] pendien
 - [x] GitHub: repositorio y ramas main/develop, permisos de escritura comprobados.
 - [x] Configuración de Worker y binding DB en código.
 - [x] URL de Workers proporcionada por propietario; conexión declarada por él.
-- [ ] Confirmar despliegue actual y respuesta HTTP desde navegador; entorno de auditoría sin acceso DNS a la URL.
+- [x] Propietario confirmó respuesta de /api/health: version 0.3.0, mode preview, database not_initialized. Despliegue y consulta a D1 confirmados por diagnóstico compartido; faltan tablas.
 - [ ] Confirmar ID y permisos de D1 en cuenta Cloudflare.
 - [ ] Aplicar migraciones remotas y verificar /api/health.
 - [ ] Separar D1 de pruebas y producción; backups, recuperación y límites de gasto.
@@ -50,7 +50,7 @@ Estados: [x] realizado o verificado dentro del alcance especificado; [ ] pendien
 - [ ] Piloto cerrado, aprobación pública.
 
 ## Pasos del propietario
-1. Abrir https://sabercomun.nickuz.workers.dev/api/health y copiar el JSON (no contiene secretos).
+1. Diagnóstico recibido: v0.3.0, not_initialized. Pendiente identificar D1 y aplicar esquema.
 2. Cloudflare → Storage & databases → D1 → sabercomun-db (si no existe, crear); compartir únicamente el database ID.
 3. Con ID fijado, Workers Builds → Settings → Deploy command: npm run deploy:with-db. Ejecuta verificación, migraciones remotas y despliegue. Requiere permisos D1; si falla, aplicar SQL desde consola D1 y revisar registros.
 4. Después de verificar D1, mantener npm run deploy:with-db para futuras migraciones revisadas o npm run deploy si se gestionan manualmente.
