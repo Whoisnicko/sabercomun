@@ -10,7 +10,8 @@ const el=(tag,text,cls)=>{const x=document.createElement(tag);if(text!==undefine
 const price=v=>v===0?"Gratis":new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(v);
 let courses=sample, category="Todas", demo=true;
 const normalize=v=>String(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-const coverInfo=c=>({uber:["01","Movilidad",0],carpinteria:["02","Madera y oficios",1],plomeria:["03","Casa y mantenimiento",2],taxi:["04","Movilidad urbana",3],electricidad:["05","Electricidad",0],excel:["06","Herramientas digitales",2]}[c.id]||["✳",c.category,0]);
+const covers=Object.assign(Object.create(null),{uber:["01","Movilidad",0],carpinteria:["02","Madera y oficios",1],plomeria:["03","Casa y mantenimiento",2],taxi:["04","Movilidad urbana",3],electricidad:["05","Electricidad",0],excel:["06","Herramientas digitales",2]});
+const coverInfo=c=>covers[c.id]||["✳",c.category,0];
 function prices(c){const p=el("div",undefined,"prices");for(const [label,value] of [["En vivo",c.live_price],["Grabación",c.recording_price]]){const d=el("div");d.append(el("small",label),el("strong",price(value)));p.append(d)}return p}
 function show(title,description,c){const d=$("detail");const heading=el("h2",title);heading.id="modal-title";d.replaceChildren(heading,el("p",description));if(c)d.append(el("p",c.instructor+" · "+c.duration_minutes+" min"),prices(c));d.append(el("p","Vista previa: registro, reservas y pagos todavía deshabilitados. No se realiza ninguna operación real.","notice"));$("modal").showModal()}
 function filters(){const wrap=$("filters");wrap.replaceChildren();for(const cat of ["Todas",...new Set(courses.map(c=>c.category))]){const b=el("button",cat,cat===category?"active":"");b.setAttribute("aria-pressed",String(cat===category));b.onclick=()=>{category=cat;filters();render()};wrap.append(b)}}

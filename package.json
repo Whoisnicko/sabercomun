@@ -1,17 +1,21 @@
 {
   "name": "sabercomun",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "npm run verify && wrangler deploy",
     "check": "node --check src/worker.js && node --check public/app.js",
     "test": "node --test",
     "db:migrate": "wrangler d1 migrations apply DB --remote",
-    "deploy:with-db": "npm run test && npm run db:migrate && wrangler deploy"
+    "deploy:with-db": "npm run verify && npm run db:migrate && wrangler deploy",
+    "verify": "npm run check && npm test"
   },
   "devDependencies": {
     "wrangler": "^4.45.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }

@@ -1,0 +1,13 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync} from 'node:fs';
+import worker from '../src/worker.js';
+const req=path=>new Request('https://example.test'+path);
+const sql=readFileSync(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8');
+function setup(){const s=new DatabaseSync(':memory:');s.exec('PRAGMA foreign_keys=ON;');s.exec(sql);s.exec("INSERT INTO users(id,name,email,password_hash,teacher) VALUES ('t','Instructor','example@example.test','not-a-real-hash',1),('s','Student','student@example.test','not-a-real-hash',0); INSERT INTO courses(id,teacher_id,title,category,description,duration_minutes,capacity,live_price,recording_price,published) VALUES ('a','t','Public class','Oficios','Description',60,10,5000,2000,1),('b','t','Draft','Oficios','Description',60,10,5000,2000,0); INSERT INTO course_access(course_id,live_url,recording_url) VALUES ('a','private-live','private-recording');");return s}
+function adapter(s){return {prepare:q=>({all:async()=>({results:s.prepare(q).all()})})}}
+test('SQL migration idempotent and all tables present',async()=>{const s=setup();try{s.exec(sql);const r=await worker.fetch(req('/api/health'),{DB:adapter(s)});assert.equal(r.status,200)}finally{s.close()}});
+test('SQL catalog: published only, no private URLs or credentials',async()=>{const s=setup();try{const r=await worker.fetch(req('/api/courses'),{DB:adapter(s)});const data=await r.json();assert.equal(data.courses.length,1);assert.equal(data.courses[0].id,'a');assert.equal(data.courses[0].instructor,'Instructor');assert.ok(!JSON.stringify(data).includes('private-'));assert.ok(!JSON.stringify(data).includes('example.test'))}finally{s.close()}});
+test('SQL rejects invalid prices, capacity, duration and orphan instructor',()=>{const s=setup();try{for(const q of ["UPDATE courses SET recording_price=6000 WHERE id='a'","UPDATE courses SET live_price=-1 WHERE id='a'","UPDATE courses SET capacity=0 WHERE id='a'","UPDATE courses SET duration_minutes=0 WHERE id='a'","UPDATE courses SET teacher_id='missing' WHERE id='a'"])assert.throws(()=>s.exec(q))}finally{s.close()}});
+test('SQL rejects duplicate payment IDs, bad status and invalid rating',()=>{const s=setup();try{s.exec("INSERT INTO orders(id,user_id,course_id,kind,amount,status,payment_id) VALUES ('o1','s','a','live',5000,'approved','p1')");assert.throws(()=>s.exec("INSERT INTO orders(id,user_id,course_id,kind,amount,status,payment_id) VALUES ('o2','s','a','live',5000,'approved','p1')"));assert.throws(()=>s.exec("UPDATE orders SET status='fake'"));assert.throws(()=>s.exec("INSERT INTO reviews(user_id,course_id,rating) VALUES ('s','a',6)"))}finally{s.close()}});
