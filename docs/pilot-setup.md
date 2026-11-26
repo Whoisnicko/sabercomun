@@ -6,7 +6,8 @@
 - main: sin cambios, continúa con sabercomun y su propia base.
 - Migraciones de piloto: pilot-migrations/0001_initial.sql y 0002_auth.sql; comando npm run deploy:pilot verifica nombre e ID, ejecuta tests, migra la base de prueba y despliega.
 - El código de autenticación permanece apagado si faltan variables/secretos. No se configuraron ni compartieron credenciales.
-- Pendiente: ejecutar suite y despliegue real, verificar /api/health, configurar proveedor de correo, probar flujo de correo real y controles de abuso.
+- Propietario confirmó Worker sabercomun-dev conectado a develop, Preview Builds desactivados y comando npm run deploy:pilot. Este commit solicita un nuevo despliegue de desarrollo.
+- Pendiente: confirmar ejecución de suite y despliegue real, verificar /api/health, configurar proveedor de correo, probar flujo de correo real y controles de abuso.
 
 ## Cloudflare
 1. Crear Worker independiente llamado sabercomun-dev (si la creación desde GitHub no permite elegir la rama antes de desplegar, crear primero un Worker vacío).
