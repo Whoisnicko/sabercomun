@@ -38,3 +38,32 @@ $("featured").onclick=()=>{const c=sample.find(x=>x.id==="carpinteria");show(c.t
 document.querySelector(".close").onclick=()=>$("modal").close();
 render();
 fetch("/api/courses").then(r=>r.ok?r.json():null).then(data=>{if(Array.isArray(data?.courses)&&data.courses.length){courses=data.courses;demo=false;$("status").textContent="Catálogo publicado";category="Todas";render()}}).catch(()=>{});
+
+let authEnabled=false, currentUser=null;
+async function callAuth(path,body){const r=await fetch('/api/auth/'+path,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await r.json();if(!r.ok)throw Error(data.error||'No se pudo completar la operación');return data}
+function accountScreen(){
+ const d=$('detail'),h=el('h2',currentUser?'Mi cuenta':'Ingresá a Saber Común');h.id='modal-title';d.replaceChildren(h);
+ const status=el('p','','notice');status.setAttribute('role','status');status.hidden=true;
+ const message=t=>{status.hidden=false;status.textContent=t};
+ if(!currentUser){
+ const form=el('form',undefined,'auth-form'),label=el('label','Correo electrónico'),input=el('input');input.type='email';input.required=true;input.autocomplete='email';label.append(input);
+ const submit=el('button','Enviarme enlace','button primary');submit.type='submit';
+ form.append(label,submit);d.append(el('p','Acceso de prueba. Usá el correo autorizado; no necesitás contraseña.'),form,status);
+ form.onsubmit=async e=>{e.preventDefault();submit.disabled=true;try{message((await callAuth('request',{email:input.value})).message)}catch(err){message(err.message)}finally{submit.disabled=false}};
+ }else{
+ const form=el('form',undefined,'auth-form'),label=el('label','Nombre visible'),input=el('input');input.value=currentUser.name;input.required=true;input.minLength=2;input.maxLength=80;label.append(input);
+ const role=el('label',' Habilitar perfil profesional'),check=el('input');check.type='checkbox';check.checked=!!currentUser.teacher;role.prepend(check);
+ const submit=el('button','Guardar perfil','button primary');submit.type='submit';form.append(label,role,submit);
+ const logout=el('button','Cerrar sesión','button secondary');d.append(el('p',currentUser.email),form,logout,status);
+ form.onsubmit=async e=>{e.preventDefault();submit.disabled=true;try{currentUser=(await callAuth('profile',{name:input.value,teacher:check.checked})).user;message('Perfil actualizado.')}catch(err){message(err.message)}finally{submit.disabled=false}};
+ logout.onclick=async()=>{try{await callAuth('logout',{});currentUser=null;accountScreen()}catch(err){message(err.message)}};
+ }
+ if(!$('modal').open)$('modal').showModal();
+}
+const fragment=new URLSearchParams(location.hash.slice(1));const access=fragment.get('access');if(access)history.replaceState(null,'',location.pathname+location.search);
+fetch('/api/auth/config').then(r=>r.ok?r.json():null).then(async config=>{
+ if(!config?.enabled)return;authEnabled=true;
+ try{currentUser=(await callAuth('me')).user}catch{}
+ $('account').onclick=accountScreen;$('teach').onclick=accountScreen;
+ if(access){const d=$('detail'),h=el('h2','Confirmá tu acceso');h.id='modal-title';const b=el('button','Ingresar','button primary'),s=el('p','','notice');s.setAttribute('role','status');d.replaceChildren(h,el('p','El enlace es personal y vence en diez minutos.'),b,s);$('modal').showModal();b.onclick=async()=>{b.disabled=true;try{currentUser=(await callAuth('redeem',{token:access})).user;accountScreen()}catch(err){s.textContent=err.message;b.disabled=false}}}
+}).catch(()=>{});
