@@ -8,8 +8,8 @@ Estados: [x] realizado o verificado dentro del alcance especificado; [ ] pendien
 - [x] URL de Workers proporcionada por propietario; conexión declarada por él.
 - [x] Propietario confirmó respuesta de /api/health: version 0.3.0, mode preview, database not_initialized. Despliegue y consulta a D1 confirmados por diagnóstico compartido; faltan tablas.
 - [x] Database ID compartido por propietario y fijado en wrangler.jsonc.
-- [ ] Confirmar permisos de escritura D1 del token de Workers Builds.
-- [ ] Aplicar migraciones remotas y verificar /api/health.
+- [ ] Revisar logs de Workers Builds para confirmar permiso de escritura y ejecución de migraciones; el diagnóstico ready confirma tablas, no el mecanismo de creación.
+- [x] Propietario confirmó /api/health: version 0.3.0, mode preview, database ready. Las seis tablas esperadas están presentes.
 - [ ] Separar D1 de pruebas y producción; backups, recuperación y límites de gasto.
 - [x] Propietario confirmó configuración de main, Preview Builds desactivados y deploy command npm run deploy:with-db.
 - [ ] Verificar ejecución efectiva de tests y migraciones en Workers Builds (Node 22.13+), con el nuevo commit.
@@ -52,10 +52,10 @@ Estados: [x] realizado o verificado dentro del alcance especificado; [ ] pendien
 - [ ] Piloto cerrado, aprobación pública.
 
 ## Pasos del propietario
-1. Diagnóstico recibido: v0.3.0, not_initialized.
-2. Database ID recibido y configurado en GitHub; falta aplicar esquema remoto.
+1. Diagnóstico final recibido: v0.3.0, ready. Infraestructura base operativa.
+2. Database ID configurado; seis tablas presentes.
 3. Configuración confirmada por propietario: main, previews desactivados, comando npm run deploy:with-db. Nuevo commit para disparar build. El comando Ejecuta verificación, migraciones remotas y despliegue. Requiere permiso D1 Edit/Write en el token de build; si falla, revisar registros y permisos. Usar solo en producción. No compartir tokens. Desactivar despliegues de ramas no productivas hasta aislar sus bases.
-4. Después de verificar D1, mantener npm run deploy:with-db para futuras migraciones revisadas o npm run deploy si se gestionan manualmente.
+4. D1 verificada por diagnóstico. Mantener npm run deploy:with-db para futuras migraciones revisadas o npm run deploy si se gestionan manualmente.
 5. No crear credenciales MP ni activar pagos hasta que exista flujo de usuario/orden seguro.
 
 Fuentes: https://developers.cloudflare.com/workers/platform/deploy-buttons/
