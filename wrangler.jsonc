@@ -13,7 +13,8 @@
     {
       "binding": "DB",
       "database_name": "sabercomun-db",
-      "migrations_dir": "migrations"
+      "migrations_dir": "migrations",
+      "database_id": "a683acdc-a348-4036-88fb-0fe6d2a64a6b"
     }
   ]
 }

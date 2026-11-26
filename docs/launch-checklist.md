@@ -7,10 +7,11 @@ Estados: [x] realizado o verificado dentro del alcance especificado; [ ] pendien
 - [x] Configuración de Worker y binding DB en código.
 - [x] URL de Workers proporcionada por propietario; conexión declarada por él.
 - [x] Propietario confirmó respuesta de /api/health: version 0.3.0, mode preview, database not_initialized. Despliegue y consulta a D1 confirmados por diagnóstico compartido; faltan tablas.
-- [ ] Confirmar ID y permisos de D1 en cuenta Cloudflare.
+- [x] Database ID compartido por propietario y fijado en wrangler.jsonc.
+- [ ] Confirmar permisos de escritura D1 del token de Workers Builds.
 - [ ] Aplicar migraciones remotas y verificar /api/health.
 - [ ] Separar D1 de pruebas y producción; backups, recuperación y límites de gasto.
-- [ ] Activar verificación automática en Workers Builds: Deploy command npm run deploy; Node 22.13+.
+- [ ] Activar verificación automática y migraciones en Workers Builds, solo rama main: Deploy command npm run deploy:with-db; Node 22.13+. No ejecutar migraciones remotas desde ramas de preview.
 
 ## Producto
 - [x] Marca v0.3, logo SVG, portada, catálogo y filtros, modalidades y precios de demostración identificados.
@@ -50,9 +51,9 @@ Estados: [x] realizado o verificado dentro del alcance especificado; [ ] pendien
 - [ ] Piloto cerrado, aprobación pública.
 
 ## Pasos del propietario
-1. Diagnóstico recibido: v0.3.0, not_initialized. Pendiente identificar D1 y aplicar esquema.
-2. Cloudflare → Storage & databases → D1 → sabercomun-db (si no existe, crear); compartir únicamente el database ID.
-3. Con ID fijado, Workers Builds → Settings → Deploy command: npm run deploy:with-db. Ejecuta verificación, migraciones remotas y despliegue. Requiere permisos D1; si falla, aplicar SQL desde consola D1 y revisar registros.
+1. Diagnóstico recibido: v0.3.0, not_initialized.
+2. Database ID recibido y configurado en GitHub; falta aplicar esquema remoto.
+3. Con ID fijado, Workers Builds → Settings → Deploy command: npm run deploy:with-db. Ejecuta verificación, migraciones remotas y despliegue. Requiere permiso D1 Edit/Write en el token de build; si falla, revisar registros y permisos. Usar solo en producción. No compartir tokens. Desactivar despliegues de ramas no productivas hasta aislar sus bases.
 4. Después de verificar D1, mantener npm run deploy:with-db para futuras migraciones revisadas o npm run deploy si se gestionan manualmente.
 5. No crear credenciales MP ni activar pagos hasta que exista flujo de usuario/orden seguro.
 

@@ -18,5 +18,5 @@ npm run dev
 ```
 
 ## Cloudflare
-Worker conectado a GitHub main. Verificar recursos y actualizar database_id en wrangler.jsonc antes de aplicar migraciones remotas. Deploy command `npm run deploy` ejecuta tests y despliega; una vez confirmado ID y permisos D1, `npm run deploy:with-db` también aplica migraciones. Confirmar respuesta de /api/health. No utilizar la misma D1 para previews con escrituras y producción.
+Worker conectado a GitHub main. Database ID fijado en wrangler.jsonc según el propietario; confirmar permisos D1 y aplicar migraciones remotas. Deploy command `npm run deploy` ejecuta tests y despliega; una vez confirmado ID y permisos D1, `npm run deploy:with-db` también aplica migraciones. Confirmar respuesta de /api/health. No ejecutar migraciones remotas desde ramas de preview. Deshabilitar despliegues de ramas no productivas hasta disponer de una D1 separada.
 No subir secretos, tokens ni datos personales a GitHub.
