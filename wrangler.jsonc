@@ -1,5 +1,5 @@
 {
-  "name": "sabercomun",
+  "name": "sabercomun-dev",
   "main": "src/worker.js",
   "compatibility_date": "2026-11-25",
   "assets": {
@@ -12,9 +12,16 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "sabercomun-db",
-      "migrations_dir": "migrations",
-      "database_id": "a683acdc-a348-4036-88fb-0fe6d2a64a6b"
+      "database_name": "sabercomun-dev",
+      "database_id": "487357a8-ab9e-458b-aaa5-b3b38beae91b",
+      "migrations_dir": "pilot-migrations"
+    },
+    {
+      "binding": "AUTH_DB",
+      "database_name": "sabercomun-dev",
+      "database_id": "487357a8-ab9e-458b-aaa5-b3b38beae91b",
+      "migrations_dir": "pilot-migrations"
     }
-  ]
+  ],
+  "keep_vars": true
 }

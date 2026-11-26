@@ -1,16 +1,18 @@
 {
   "name": "sabercomun",
-  "version": "0.3.0",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "npm run verify && wrangler deploy",
-    "check": "node --check src/worker.js && node --check public/app.js",
+    "deploy": "npm run guard:pilot && npm run verify && wrangler deploy",
+    "check": "node --check src/worker.js && node --check src/auth.js && node --check src/session.js && node --check public/app.js",
     "test": "node --test",
-    "db:migrate": "wrangler d1 migrations apply DB --remote",
-    "deploy:with-db": "npm run verify && npm run db:migrate && wrangler deploy",
-    "verify": "npm run check && npm test"
+    "db:migrate": "npm run guard:pilot && wrangler d1 migrations apply sabercomun-dev --remote",
+    "deploy:with-db": "npm run guard:pilot && npm run verify && npm run db:migrate && wrangler deploy",
+    "verify": "npm run check && npm test",
+    "guard:pilot": "node scripts/assert-pilot.mjs",
+    "deploy:pilot": "npm run deploy:with-db"
   },
   "devDependencies": {
     "wrangler": "^4.45.0"
